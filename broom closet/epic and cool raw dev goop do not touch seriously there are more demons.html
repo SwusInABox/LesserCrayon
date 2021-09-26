@@ -1,0 +1,356 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<style>
+#substance-box
+{
+    display: block;
+    float: left;
+    width: 70%;
+    height: 100%;
+    background-color: rgb(30, 30, 30);
+    box-sizing: border-box;
+}
+
+#style-box
+{
+    display: block;
+    float: right;
+    width: 30%;
+    height: 100%;
+    background-color: rgb(40, 40, 40);
+    box-sizing: border-box;
+}
+
+div
+{
+    padding: 16px;
+}
+
+h2
+{
+    color: white
+}
+
+mark
+{
+    background-color: rgba( 0, 0, 0, 0 );
+}
+
+</style>
+    <title>Lesser Crayon - by Swus</title>
+</head>
+
+<body style="margin-top: 0px;margin-left: 0px;margin-right: 0px;margin-bottom: 0px;">
+    <div id="substance-box">
+        <h2>Raw Input</h2>
+        <textarea id="rawinput" rows="10" cols="80" oninput="updatedInput()">Bided time is time spent wasted.</textarea>
+        <h2>Preview</h2>
+        <p id="preview" style="color:rgb(192, 192, 192)">Bided time is time spent wasted.</p>
+        <h2>Output</h2>
+        <textarea id="rawoutput" rows="10" cols="80" readonly="true">Bided time is time spent wasted.</textarea>
+    </div>
+    <div id="style-box">
+        <h2>Palette</h2>
+        <div id="style-box-colors"></div>
+        <h2>Common Patterns</h2>
+        <h2>Misc.</h2>
+    </div>
+</body></html>
+
+<script>
+
+class ColorCombo
+{
+    constructor ( color_code, hex_code, nocolor )
+    {
+        this.colorcode = "%^" + color_code + "%^";
+        this.hex_code = hex_code;
+        this.nothing = nocolor;
+    }
+}
+
+class ColoredString
+{/*
+    constructor( color_code, hex_code, text )
+    {
+        this.colorcode = "%^" + color_code + "%^";
+        this.hex_code = hex_code;
+        this.text = text;
+    }*/
+
+    constructor( color_combo, text )
+    {
+        this.colorcode = color_combo.colorcode;
+        this.hex_code = color_combo.hex_code;
+        this.nothing = color_combo.nothing;
+        this.text = text;
+    }
+}
+
+var colorTracker = [];
+colorTracker.push( new ColoredString( new ColorCombo( "CRST", "rgb( 192, 192, 192 )", true ), "Bided time is time spent wasted." ) )
+
+var default_color = new ColorCombo( "CRST", "rgb( " + 192 + ", " + 192 + ", " + 192 + " )", true );
+var input_field = document.getElementById( "rawinput" );
+
+function properlyFormatColorCode( number_to_format )
+{
+    if ( number_to_format > 99 )
+    {
+        return "C" + number_to_format;
+    }
+
+    if ( number_to_format < 10 )
+    {
+        return "C00" + number_to_format;
+    }
+
+    if ( number_to_format < 100 )
+    {
+        return "C0" + number_to_format;
+    }
+}
+
+function colorButtonClicked( hex_color, color_tag )
+{
+    /*
+    DEBUG
+    console.log( hex_color )
+    console.log( color_tag )
+    console.log( input_field.selectionStart + ", " + input_field.selectionEnd )
+
+    INFO:
+    Cursor position 0 is before the first character
+    */
+    updateColorTracker( new ColorCombo( color_tag, hex_color, false ) );
+    cleanColorTracker();
+    renderPreview();
+    updateOutput();
+}
+
+function updateColorTracker( color )
+{
+    // I am not in the right headspace to write this shit... But I'm gonna do it anyway ;)
+    var startOfColor = input_field.selectionStart;
+    var charactersToSteal = input_field.selectionEnd - startOfColor;
+    var totalLengthPassed = 0;
+    var insertAfter;
+
+    for ( var i = 0; i < colorTracker.length; ++i )
+    {
+        if ( startOfColor < colorTracker[ i ].text.length + totalLengthPassed )
+        {
+            insertAfter = i;
+
+            if ( charactersToSteal <= colorTracker[ i ].text.substr( startOfColor - totalLengthPassed ).length )
+            {
+                var bifurcand = colorTracker[ i ].text.substr( charactersToSteal + startOfColor - totalLengthPassed );
+                colorTracker[ i ].text = colorTracker[ i ].text.substr( 0, startOfColor - totalLengthPassed );
+                colorTracker.splice( i + 1, 0, new ColoredString( color, input_field.value.substr( startOfColor, input_field.selectionEnd - startOfColor ) ) );
+                colorTracker.splice( i + 2, 0, new ColoredString( new ColorCombo( colorTracker[ i ].colorcode.substr( 2, 4 ), colorTracker[ i ].hex_code, colorTracker[ i ].nothing ), bifurcand ) )
+                return;
+            }
+
+            charactersToSteal -= colorTracker[ i ].text.substr( startOfColor - totalLengthPassed ).length;
+            colorTracker[ i ].text = colorTracker[ i ].text.substr( 0, startOfColor - totalLengthPassed );
+            ++i;
+
+            while( charactersToSteal > colorTracker[ i ].text.length )
+            {
+                charactersToSteal -= colorTracker[ i ].text.length;
+                colorTracker.splice( i, 1 );
+            }
+
+            var newString = new ColoredString( color, input_field.value.substr( startOfColor, input_field.selectionEnd - startOfColor ) );
+            colorTracker[ i ].text = colorTracker[ i ].text.substr( charactersToSteal );
+            colorTracker.splice( insertAfter + 1, 0, newString );
+
+            return;
+        }
+        else
+        {
+            totalLengthPassed += colorTracker[ i ].text.length;
+        }
+    }
+}
+
+function cleanColorTracker()
+{
+    for ( var i = 0; i < colorTracker.length; ++i )
+    {
+        if ( !colorTracker[ i ] || !colorTracker[ i ].text )
+        {
+            colorTracker.splice( i, 1 );
+            if ( i != 0 )
+                --i;
+        }
+        if ( colorTracker.length != i + 1 && colorTracker[ i ].colorcode == colorTracker[ i + 1 ].colorcode )
+        {
+            colorTracker[ i ].text = colorTracker[ i ].text + colorTracker[ i + 1 ].text;
+            colorTracker.splice( i + 1, 1 );
+        }
+    }
+}
+
+function renderPreview()
+{
+    // TODO: This could be a for-each.
+    var newPreviewText = "";
+    for ( var i = 0; i < colorTracker.length; ++i )
+    {
+        if ( !colorTracker[ i ].nothing )
+            newPreviewText += "<mark style=\"color: " + colorTracker[ i ].hex_code + "\">" + colorTracker[ i ].text + "</mark>";
+        else
+            newPreviewText += colorTracker[ i ].text;
+    }
+
+    document.getElementById( "preview" ).innerHTML = newPreviewText;
+}
+
+function updateOutput()
+{
+    // TODO: This could be a for-each.
+    var newOutput = "";
+    for ( var i = 0; i < colorTracker.length; ++i )
+    {
+        if ( !colorTracker[ i ].nothing )
+        {
+            newOutput += colorTracker[ i ].colorcode + colorTracker[ i ].text;
+            if ( i + 1 == colorTracker.length ) // This is nested because I don't know how JS behaves when you reference a potentially non-existent element.
+                newOutput += "%^CRST%^"
+        }
+        else if ( i != 0 )
+            newOutput += "%^CRST%^" + colorTracker[ i ].text;
+        else
+        newOutput += colorTracker[ i ].text;
+    }
+
+    document.getElementById( "rawoutput" ).textContent = newOutput;
+}
+
+function updatedInput()
+{
+    // TODO: Keep colors.
+    colorTracker.splice( 0, colorTracker.length, new ColoredString( new ColorCombo( "CRST", "rgb( 192, 192, 192 )", true ), input_field.value ) )
+    cleanColorTracker();
+    renderPreview();
+    updateOutput();
+}
+
+window.onload = function()
+{
+    var color_box = document.getElementById( "style-box-colors" );
+
+    var color_code = 0;
+    // Create C000 - C006
+    for ( var b = 0; b < 2; ++b )
+        for( var g = 0; g < 2; ++g )
+            for( var r = 0; r < 2; ++r )
+            {
+                if ( r * g * b )
+                {
+                    break;
+                }
+
+                // Create buttons rgb * 128
+                var template_button = document.createElement( "BUTTON" );
+                template_button.style.width = "6.25%";
+                template_button.style.paddingTop = "6.25%";
+                template_button.style.backgroundColor = "rgb( " + r * 128 + ", " + g * 128 + ", " + b * 128 + " )";
+                template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( " + r * 128 + ", " + g * 128 + ", " + b * 128 + " )\", \"" + properlyFormatColorCode( color_code ) +"\" )" );
+                color_box.appendChild( template_button );
+                ++color_code;
+            }
+    
+    // Create C007 & 8 (192, 128)
+    {
+        var template_button = document.createElement( "BUTTON" );
+        template_button.style.width = "6.25%";
+        template_button.style.paddingTop = "6.25%";
+        template_button.style.backgroundColor = "rgb( 192, 192, 192 )";
+        template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( 192, 192, 192 )\", \"" + properlyFormatColorCode( color_code ) + "\" )" );
+        color_box.appendChild( template_button );
+        ++color_code;
+    }
+    
+    {
+        var template_button = document.createElement( "BUTTON" );
+        template_button.style.width = "6.25%";
+        template_button.style.paddingTop = "6.25%";
+        template_button.style.backgroundColor = "rgb( 128, 128, 128 )";
+        template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( 128, 128, 128 )\", " + properlyFormatColorCode( color_code ) +" )" );
+        color_box.appendChild( template_button );
+        ++color_code;
+    }
+
+    // Create C009-15 !TODO test
+    for ( var b = 0; b < 2; ++b )
+        for( var g = 0; g < 2; ++g )
+            for( var r = 0; r < 2; ++r )
+            {
+                if ( !r && !g && !b )
+                {
+                    continue;
+                }
+
+                var template_button = document.createElement( "BUTTON" );
+                template_button.style.width = "6.25%";
+                template_button.style.paddingTop = "6.25%";
+                template_button.style.backgroundColor = "rgb( " + r * 255 + ", " + g * 255 + ", " + b * 255 + " )";
+                template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( " + r * 255 + ", " + g * 255 + ", " + b * 255 + " )\", \"" + properlyFormatColorCode( color_code ) +"\" )" );
+                color_box.appendChild( template_button );
+                ++color_code;
+            }
+
+    // Create C016 - C231
+    // This is horrendous. Genuinely, actually atrocious. If anyone would like to fix this, I'd appreciate it.
+    for ( var r = 55; r < 256; r += 40 )
+    {
+        var real_r = r;
+        if ( real_r == 55 )
+        {
+            real_r = 0;
+        }
+
+        for ( var g = 55; g < 256; g += 40 )
+        {
+            var real_g = g;
+            if ( real_g == 55 )
+            {
+                real_g = 0;
+            }
+
+            for ( var b = 55; b < 256; b += 40 )
+            {
+                var real_b = b;
+                if ( real_b == 55 )
+                {
+                    real_b = 0;
+                }
+
+                // Create button
+                var template_button = document.createElement( "BUTTON" );
+                template_button.style.width = "6.25%";
+                template_button.style.paddingTop = "6.25%";
+                template_button.style.backgroundColor = "rgb( " + real_r + ", " + real_g + ", " + real_b + " )";
+                template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( " + real_r + ", " + real_g + ", " + real_b + " )\", \"" + properlyFormatColorCode( color_code ) +"\" )" );
+                color_box.appendChild( template_button );
+                ++color_code;
+            }
+        }
+    }
+
+    // Create C232 - C255
+    for ( var v = 8; v < 239; v += 10 )
+    {
+        var template_button = document.createElement( "BUTTON" );
+            template_button.style.width = "6.25%";
+            template_button.style.paddingTop = "6.25%";
+            template_button.style.backgroundColor = "rgb( " + v + ", " + v + ", " + v + " )";
+            template_button.setAttribute( "onclick", "colorButtonClicked( \"rgb( " + v + ", " + v + ", " + v + " )\", \"" + properlyFormatColorCode( color_code ) +"\" )" );
+            color_box.appendChild( template_button );
+            ++color_code;
+    }
+}
+</script>

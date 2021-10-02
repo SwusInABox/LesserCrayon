@@ -185,10 +185,14 @@ function cleanColorTracker()
             if ( i != 0 )
                 --i;
         }
+    }
+    for ( var i = 0; i < colorTracker.length; ++i )
+    {
         if ( colorTracker.length != i + 1 && colorTracker[ i ].colorcode == colorTracker[ i + 1 ].colorcode )
         {
             colorTracker[ i ].text = colorTracker[ i ].text + colorTracker[ i + 1 ].text;
             colorTracker.splice( i + 1, 1 );
+            --i;
         }
     }
 }

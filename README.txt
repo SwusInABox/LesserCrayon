@@ -1,16 +1,10 @@
-PREFACE:
-Alright, so, I made this entire thing in about twelve hours on either end of my
-writing this file. This is going to break if you try to break it ( hell, it
-will probably break regardless, ) so, if you manage to do that, let me know
-somehow.
-
-If you think you've got the mental fortitude to sift through the code I wrote
-while blacked out on a severe lack of sleep and several gallons of Bang:tm:
-Energy Liquid, please submit a PR instead. I thank you for saving me the
-trauma, because at this point I am sure that code demons are real.
-
-Also, I apologize for the shit UI/UI scaling, but I have little to no
-experience in HTML at this point, so, it's the best I could do.
+INSTALLATION:
+Open the the "index.html" file in any browser.
+This can generally be done by dragging the file into an empty tab, or by
+dragging the file into a URL bar.
+Barring this, launch the "RUN ME (Windows).bat" file, which should open
+the page automatically. I included nothing for Linux, because if you're on
+it, I feel it's reasonable to expect that you know what you're doing.
 
 USAGE:
 Throw your text into the raw input field -- this should update the preview and

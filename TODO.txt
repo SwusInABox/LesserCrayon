@@ -1,6 +1,5 @@
-- Fix spacing between palette sections
-- Block style palettes
 - Colors that persist through edits
+- A total rewrite of the HTML
 - Patterns?
 - Coloring from the preview? No preview at all, use rich text editing instead?
 - Pure black background for more game-accurate look?

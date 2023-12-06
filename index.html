@@ -246,7 +246,7 @@ function renderPreview()
             newPreviewText += colorTracker[ i ].text;
     }
 
-    newPreviewText = newPreviewText.replace("\n", "\n<br>\n");
+    newPreviewText = newPreviewText.replaceAll("\n", "\n<br>\n");
 
     document.getElementById( "preview" ).innerHTML = newPreviewText;
 }

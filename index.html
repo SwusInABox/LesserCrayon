@@ -62,7 +62,9 @@ mark
         <h2>Raw Input</h2>
         <textarea id="rawinput" rows="10" cols="80" oninput="updatedInput()">Bided time is time spent wasted.</textarea>
         <h2>Preview</h2>
-        <p id="preview" style="color:rgb(192, 192, 192)">Bided time is time spent wasted.</p>
+        <p id="preview" style="color:rgb(192, 192, 192)">
+            Bided time is time spent wasted.
+        </p>
         <h2>Output</h2>
         <textarea id="rawoutput" rows="10" cols="80" readonly="true">Bided time is time spent wasted.</textarea>
     </div>
@@ -264,6 +266,8 @@ function updateOutput()
         else
         newOutput += colorTracker[ i ].text;
     }
+    
+    newOutput = newOutput.replace("\n", "\n<br>\n");
 
     document.getElementById( "rawoutput" ).textContent = newOutput;
 }
